@@ -2,33 +2,36 @@
     require("../../../lang/lang.php");
     $strings = tr();
 
-    if( isset($_POST['submit']) ){
-
+    if (isset($_POST['submit'])) {
         $tmpName = $_FILES['input_image']['tmp_name'];
         $fileName = $_FILES['input_image']['name'];
+        $fileType = $_FILES['input_image']['type'];
 
-        if(!empty($fileName)){
-            if(!file_exists("uploads")){
-                mkdir("uploads");
+        // Array de tipos de archivo permitidos
+        $allowedTypes = array("image/gif", "image/png", "image/jpg", "image/jpeg");
+
+        // Verificar si el tipo de archivo es permitido
+        if (in_array($fileType, $allowedTypes)) {
+            if (!empty($fileName)) {
+                if (!file_exists("uploads")) {
+                    mkdir("uploads");
+                }
+
+                $uploadPath = "uploads/" . $fileName;
+
+                if (@move_uploaded_file($tmpName, $uploadPath)) {
+                    $status = "success";
+                } else {
+                    $status = "unsuccess";
+                }
+            } else {
+                $status = "empty";
             }
-    
-            $uploadPath = "uploads/".$fileName;
-    
-            if( @move_uploaded_file($tmpName,$uploadPath) ){
-                $status = "success";
-                
-            }else{
-                $status = "unsuccess";
-            }
-        }else{
-            $status = "empty";
+        } else {
+            $status = "invalid_type";
         }
-
-
     }
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="<?= $strings['lang']; ?>">
@@ -40,15 +43,12 @@
     <link rel="stylesheet" href="bootstrap.min.css">
 </head>
 <body>
-    
     <div class="container">
-
         <div class="container-wrapper">
             <div class="row pt-5 mt-5 mb-3">
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
                     <h1><?= $strings['title']; ?></h1>
-
                     <a href="delete.php"><button type="button" href="" class="btn btn-secondary btn-sm"><?= $strings['delete_button']; ?></button></a>
                 </div>
                 <div class="col-md-3"></div>
@@ -56,33 +56,35 @@
             <div class="row pt-3">
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
-                    
                     <div class="card border-primary mb-4">
                         <div class="card-header text-primary">
-                        <?= $strings['card_formats']; ?> <b><?= $strings['card_formats_type']; ?> </b>
+                            <?= $strings['card_formats']; ?> <b><?= $strings['card_formats_type']; ?> </b>
                         </div>
                     </div>
-
                     <h3 class="mb-3"><?= $strings['middle_title']; ?></h3>
 
                     <?php
-                        if( isset($status) ){
-                            if( $status == "success" ){
+                        if (isset($status)) {
+                            if ($status == "success") {
                                 echo '<div class="alert alert-success" role="alert">
-                                <b>'.$strings['alert_success'].'</b> 
-                                <hr>'
-                                .$strings['alert_success_file_path'].'<a class="text-success" href="'.$uploadPath.'"> <b>'.$uploadPath.'</b> </a> 
-                                </div>';
+                                        <b>' . $strings['alert_success'] . '</b> 
+                                        <hr>' . $strings['alert_success_file_path'] . '<a class="text-success" href="' . $uploadPath . '"> <b>' . $uploadPath . '</b> </a> 
+                                    </div>';
                             }
-                            if( $status == "unsuccess" ){
+                            if ($status == "unsuccess") {
                                 echo '<div class="alert alert-danger" role="alert">
-                                <b>'.$strings['alert_unsuccess'].'</b> 
-                                </div>';
+                                        <b>' . $strings['alert_unsuccess'] . '</b> 
+                                    </div>';
                             }
-                            if( $status == "empty" ){
+                            if ($status == "empty") {
                                 echo '<div class="alert alert-danger" role="alert">
-                                <b>'.$strings['alert_empty'].'</b> 
-                                </div>';
+                                        <b>' . $strings['alert_empty'] . '</b> 
+                                    </div>';
+                            }
+                            if ($status == "invalid_type") {
+                                echo '<div class="alert alert-danger" role="alert">
+                                        <b>' . $strings['alert_invalid_type'] . '</b> 
+                                    </div>';
                             }
                         }
                     ?>
@@ -96,12 +98,10 @@
                             <button class="btn btn-primary" type="submit" name="submit"><?= $strings['button']; ?></button>
                         </div>
                     </form>
-
                 </div>
                 <div class="col-md-3"></div>
             </div>
         </div>
-
     </div>
     <script id="VLBar" title="<?= $strings['title']; ?>" category-id="7" src="/public/assets/js/vlnav.min.js"></script>
 </body>
